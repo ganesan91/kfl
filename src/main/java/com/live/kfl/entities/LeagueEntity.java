@@ -6,7 +6,6 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.sql.Timestamp;
-import java.util.Date;
 
 @Entity
 @Table(name = "LEAGUE_INFO")
@@ -16,19 +15,25 @@ import java.util.Date;
 public class LeagueEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    int LEAGUE_ID;
+    @Column(name = "LEAGUE_ID")
+    int leagueId;
 
     @NotBlank
-    String LEAGUE_NAME;
+    @Column(name = "LEAGUE_NAME")
+    String leagueName;
 
     @NotBlank
-    String IS_ACTIVE;
+    @Column(name = "IS_ACTIVE")
+    String isActive;
 
-    Timestamp UPDATE_DTM;
+    @Column(name = "UPDATE_DTM")
+    Timestamp updateDtm;
 
     @NotBlank
-    String LEAGUE_CODE;
+    @Column(name = "LEAGUE_CODE")
+    String leagueCode;
 
     @NotBlank
-    String VALID_UPTO;
+    @Column(name = "VALID_UPTO")
+    String validUpto;
 }

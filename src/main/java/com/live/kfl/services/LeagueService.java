@@ -73,6 +73,7 @@ public class LeagueService {
         leagueEntity.setValidUpto(getValidUpto());
         leagueEntity.setIsActive("1");
         leagueEntity.setUpdateDtm(getCurrentTimestamp());
+        leagueEntity.setUserId(Integer.valueOf(leagueInfo.get("user_id").toString()));
         leagueEntitityRepository.save(leagueEntity);
         leagueInfo.put(LEAGUE_ID, leagueEntity.getLeagueId());
         leagueInfo.put(LEAGUE_CODE, leagueEntity.getLeagueCode());

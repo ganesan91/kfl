@@ -8,11 +8,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class KflApplication {
 
-    // For Logging
-    private static final Logger logger = Logger.getLogger(KflApplication.class);
+  // For Logging
+  private static final Logger logger = Logger.getLogger(KflApplication.class);
 
-    public static void main(String[] args) {
-        SpringApplication.run(KflApplication.class, args);
-        logger.info("Application Started");
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(KflApplication.class, args);
+    logger.info("Application Started");
+  }
 }

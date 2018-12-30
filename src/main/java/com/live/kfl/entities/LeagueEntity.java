@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 @Entity
@@ -25,6 +26,10 @@ public class LeagueEntity {
     @NotBlank
     @Column(name = "IS_ACTIVE")
     String isActive;
+
+    @NotNull
+    @Column(name = "USER_ID")
+    int userId;
 
     @Column(name = "UPDATE_DTM")
     Timestamp updateDtm;

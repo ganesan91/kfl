@@ -1,6 +1,8 @@
 package com.live.kfl.controllers;
 
-import com.live.kfl.entities.LeagueInfoEntity;
+import com.live.kfl.entities.league.LeagueInfoEntity;
+import com.live.kfl.entities.team.TeamInfoEntity;
+import com.live.kfl.entities.team.TeamPreferenceEntity;
 import com.live.kfl.services.LeagueService;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +37,14 @@ public class LeagueController {
   }
 
   // Join league
-  @GetMapping("/joinLeague/{leagueCode}")
-  public LeagueInfoEntity joinLeague(@PathVariable String leagueCode) {
-    return leagueService.joinLeague(leagueCode);
+  @GetMapping("/getLeague/{leagueCode}")
+  public LeagueInfoEntity getLeague(@PathVariable String leagueCode) {
+    return leagueService.getLeague(leagueCode);
+  }
+
+  // Create New league
+  @PostMapping("/joinLeague")
+  public Map<String, Object> joinLeague(@RequestBody Map<String, Object> leagueInfo) {
+    return leagueService.joinLeague(leagueInfo);
   }
 }

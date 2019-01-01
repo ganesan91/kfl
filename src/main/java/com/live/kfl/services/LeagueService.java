@@ -88,27 +88,7 @@ public class LeagueService {
         List<TeamInfoEntity> teamInfoEntities = teamInfoRepository.findByLeagueId((int) leagueInfo.get(LEAGUE_ID));
 
         for (TeamInfoEntity teamInfoEntity : teamInfoEntities) {
-            Map<String, Object> team = new HashMap<>();
-            List<UserTeamInfoEntity> userTeamInfoEntities = userTeamInfoRepository.findByIdTeamId(teamInfoEntity.getTeamId());
-            team.put("teamName", teamInfoEntity.getTeamName());
-            Map<String, Object> members = new HashMap<>();
-            for (UserTeamInfoEntity userTeamInfoEntity : userTeamInfoEntities) {
-                Map<String, Object> member = new HashMap<>();
-                member.put("userId", userTeamInfoEntity.getId().getUserId());
-                members.put("member" + userTeamInfoEntity.getId().getUserId(), member);
-            }
-            team.put("members", members);
-            List<TeamPreferenceEntity> teamPreferenceEntities = teamPreferenceRepository.findByIdTeamId(teamInfoEntity.getTeamId());
-            Map<String, Object> preference = new HashMap<>();
-            for (TeamPreferenceEntity teamPreferenceEntity : teamPreferenceEntities) {
-                if (teamPreferenceEntity.getId().getPreferenceName().equals("COLOR")) {
-                    preference.put("color", teamPreferenceEntity.getPreferenceCode());
-                } else if (teamPreferenceEntity.getId().getPreferenceName().equals("LOGO")) {
-                    preference.put("logoId", teamPreferenceEntity.getPreferenceCode());
-                }
-            }
-            team.put("preference", preference);
-            teams.put("team" + teamInfoEntity.getTeamId(), team);
+            teams.put("team" + teamInfoEntity.getTeamId(), getTeamDetails(teamInfoEntity));
         }
         teamDetails.put("teamDetails", teams);
         Optional<LeagueLimitEntity> leagueLimitEntity = leagueLimitRepository.findById((int) leagueInfo.get(LEAGUE_ID));
@@ -118,6 +98,30 @@ public class LeagueService {
         }
         teamDetails.put("maxTeamLimitReached", teamInfoEntities.size() == option.getTeamSize() ? true : false);
         return teamDetails;
+    }
+
+    public Map<String, Object> getTeamDetails(TeamInfoEntity teamInfoEntity) {
+        Map<String, Object> team = new HashMap<>();
+        List<UserTeamInfoEntity> userTeamInfoEntities = userTeamInfoRepository.findByIdTeamId(teamInfoEntity.getTeamId());
+        team.put("teamName", teamInfoEntity.getTeamName());
+        Map<String, Object> members = new HashMap<>();
+        for (UserTeamInfoEntity userTeamInfoEntity : userTeamInfoEntities) {
+            Map<String, Object> member = new HashMap<>();
+            member.put("userId", userTeamInfoEntity.getId().getUserId());
+            members.put("member" + userTeamInfoEntity.getId().getUserId(), member);
+        }
+        team.put("members", members);
+        List<TeamPreferenceEntity> teamPreferenceEntities = teamPreferenceRepository.findByIdTeamId(teamInfoEntity.getTeamId());
+        Map<String, Object> preference = new HashMap<>();
+        for (TeamPreferenceEntity teamPreferenceEntity : teamPreferenceEntities) {
+            if (teamPreferenceEntity.getId().getPreferenceName().equals("COLOR")) {
+                preference.put("color", teamPreferenceEntity.getPreferenceCode());
+            } else if (teamPreferenceEntity.getId().getPreferenceName().equals("LOGO")) {
+                preference.put("logoId", teamPreferenceEntity.getPreferenceCode());
+            }
+        }
+        team.put("preference", preference);
+        return team;
     }
 
     //To save league logo entity
@@ -133,7 +137,7 @@ public class LeagueService {
         LeagueLimitEntity leagueLimitEntity = new LeagueLimitEntity();
         leagueLimitEntity.setLeagueId(((int) leagueInfo.get(LEAGUE_ID)));
         leagueLimitEntity.setPlayerLimit((int) leagueInfo.get("players_limit"));
-        leagueLimitEntity.setTeamSize((int)leagueInfo.get("team_limit"));
+        leagueLimitEntity.setTeamSize((int) leagueInfo.get("team_limit"));
         leagueLimitRepository.save(leagueLimitEntity);
     }
 
@@ -141,7 +145,7 @@ public class LeagueService {
     public void saveLeagueMemberEntity(Map<String, Object> leagueInfo, String type) {
         LeagueMemberEntity leagueMemberEntity = new LeagueMemberEntity();
         leagueMemberEntity.setLeagueId(((int) leagueInfo.get(LEAGUE_ID)));
-        leagueMemberEntity.setUserId((int)leagueInfo.get("user_id"));
+        leagueMemberEntity.setUserId((int) leagueInfo.get("user_id"));
         leagueMemberEntity.setType(type);
         leagueMemberRepository.save(leagueMemberEntity);
     }

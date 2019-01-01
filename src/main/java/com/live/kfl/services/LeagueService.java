@@ -121,6 +121,7 @@ public class LeagueService {
             }
         }
         team.put("preference", preference);
+        team.put("playerCount", userTeamInfoEntities.size());
         return team;
     }
 

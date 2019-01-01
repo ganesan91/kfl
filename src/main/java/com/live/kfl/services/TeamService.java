@@ -1,6 +1,8 @@
 package com.live.kfl.services;
 
+import com.live.kfl.entities.league.LeagueLimitEntity;
 import com.live.kfl.entities.team.*;
+import com.live.kfl.repositories.league.LeagueLimitRepository;
 import com.live.kfl.repositories.team.TeamInfoRepository;
 import com.live.kfl.repositories.team.TeamPreferenceRepository;
 import com.live.kfl.repositories.team.UserTeamInfoRepository;
@@ -14,6 +16,12 @@ import static com.live.kfl.constants.LeagueConstants.*;
 @Service
 public class TeamService {
     @Autowired
+    LeagueService leagueService;
+
+    @Autowired
+    LeagueLimitRepository leagueLimitRepository;
+
+    @Autowired
     TeamInfoRepository teamInfoRepository;
 
     @Autowired
@@ -25,7 +33,7 @@ public class TeamService {
     /* To create team */
     public Map<String, Object> createTeam(Map<String, Object> teamInfo) {
         teamInfo = saveTeamInfoEntity(teamInfo);
-        saveUserTeamInfoEntity(teamInfo);
+        saveUserTeamInfoEntity(teamInfo, "A");
         saveTeamPreference(teamInfo, "color");
         saveTeamPreference(teamInfo, "logo_id");
 
@@ -51,11 +59,11 @@ public class TeamService {
     }
 
     //To save to user team info
-    public void saveUserTeamInfoEntity(Map<String, Object> teamInfo) {
+    public void saveUserTeamInfoEntity(Map<String, Object> teamInfo, String type) {
         UserTeamInfoEntity userTeamInfoEntity = new UserTeamInfoEntity();
         UserTeamInfoEmbedded userTeamInfoEmbedded = new UserTeamInfoEmbedded((int) teamInfo.get("user_id"), (int) teamInfo.get("team_id"));
         userTeamInfoEntity.setId(userTeamInfoEmbedded);
-        userTeamInfoEntity.setType("A");
+        userTeamInfoEntity.setType(type);
         userTeamInfoEntity.setUpdateDtm(LeagueService.getCurrentTimestamp());
         userTeamInfoRepository.save(userTeamInfoEntity);
     }
@@ -68,5 +76,36 @@ public class TeamService {
         teamPreferenceEntity.setPreferenceCode((int) teamInfo.get(preferenceName));
         teamPreferenceEntity.setUpdateDtm(LeagueService.getCurrentTimestamp());
         teamPreferenceRepository.save(teamPreferenceEntity);
+    }
+
+    public Map<String,Object> joinTeamInLeague(Map<String, Object> teamInfo) {
+        Map<String, Object> responseApi = new HashMap<>();
+        Optional<TeamInfoEntity> teamInfoEntity = teamInfoRepository.findById((int) teamInfo.get("team_id"));
+        if(teamInfoEntity.get().getPin() == (int)teamInfo.get("pin")){
+            if(teamInfo.get("user_type").equals("M")){
+                Optional<LeagueLimitEntity> leagueLimitEntity = leagueLimitRepository.findById((int) teamInfo.get("league_id"));
+                if(leagueLimitEntity.get().getPlayerLimit() > (int) leagueService.getTeamDetails(teamInfoEntity.get()).get("playerCount")){
+                    //add as member
+                    saveUserTeamInfoEntity(teamInfo, "M");
+                    responseApi.put("joined_status", "1");
+                    responseApi.put("joined_userType", "M");
+                }
+                else{
+                    //add as guest
+                    saveUserTeamInfoEntity(teamInfo, "G");
+                    responseApi.put("joined_status", "-1");
+                    responseApi.put("joined_userType", "G");
+                }
+            }
+            else if(teamInfo.get("user_type") == "G"){
+                // add as guest
+                saveUserTeamInfoEntity(teamInfo, "G");
+                responseApi.put("joined_status", "-1");
+                responseApi.put("joined_userType", "G");
+            }
+        }
+        responseApi.put("league_id", teamInfo.get("league_id"));
+        responseApi.put("team_details", leagueService.getTeamDetails(teamInfoEntity.get()));
+        return responseApi;
     }
 }

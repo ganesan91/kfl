@@ -78,34 +78,47 @@ public class TeamService {
         teamPreferenceRepository.save(teamPreferenceEntity);
     }
 
-    public Map<String,Object> joinTeamInLeague(Map<String, Object> teamInfo) {
+    public Map<String, Object> joinTeam(Map<String, Object> teamInfo) {
         Map<String, Object> responseApi = new HashMap<>();
-        Optional<TeamInfoEntity> teamInfoEntity = teamInfoRepository.findById((int) teamInfo.get("team_id"));
-        if(teamInfoEntity.get().getPin() == (int)teamInfo.get("pin")){
-            if(teamInfo.get("user_type").equals("M")){
-                Optional<LeagueLimitEntity> leagueLimitEntity = leagueLimitRepository.findById((int) teamInfo.get("league_id"));
-                if(leagueLimitEntity.get().getPlayerLimit() > (int) leagueService.getTeamDetails(teamInfoEntity.get()).get("playerCount")){
-                    //add as member
-                    saveUserTeamInfoEntity(teamInfo, "M");
-                    responseApi.put("joined_status", "1");
-                    responseApi.put("joined_userType", "M");
-                }
-                else{
-                    //add as guest
+        Optional<TeamInfoEntity> teamInfoEntityOptional = teamInfoRepository.findById((int) teamInfo.get("team_id"));
+        if (teamInfoEntityOptional.isPresent()) {
+            TeamInfoEntity teamInfoEntity = teamInfoEntityOptional.get();
+            if (teamInfoEntity.getPin() == (int) teamInfo.get("pin")) {
+                if (teamInfo.get("user_type").equals("M")) {
+                    Optional<LeagueLimitEntity> leagueLimitEntityOptional = leagueLimitRepository.findById((int) teamInfo.get("league_id"));
+                    if (leagueLimitEntityOptional.isPresent()) {
+                        LeagueLimitEntity leagueLimitEntity = leagueLimitEntityOptional.get();
+                        if (leagueLimitEntity.getPlayerLimit() > (int) leagueService.getTeamDetails(teamInfoEntity).get("playerCount")) {
+                            //add as member
+                            saveUserTeamInfoEntity(teamInfo, "M");
+                            responseApi.put("joined_status", "1");
+                            responseApi.put("joined_userType", "M");
+                        } else {
+                            //add as guest
+                            saveUserTeamInfoEntity(teamInfo, "G");
+                            responseApi.put("joined_status", "-1");
+                            responseApi.put("joined_userType", "G");
+                            responseApi.put("message", "Max limit for Users reached, user joined as Guest");
+                        }
+                    }
+                } else if (teamInfo.get("user_type").equals("G")) {
+                    // add as guest
                     saveUserTeamInfoEntity(teamInfo, "G");
-                    responseApi.put("joined_status", "-1");
+                    responseApi.put("joined_status", "1");
                     responseApi.put("joined_userType", "G");
+                } else {
+                    responseApi.put("joined_status", "0");
+                    responseApi.put("message", "Invalid User type");
                 }
+            } else {
+                responseApi.put("joined_status", "0");
+                responseApi.put("message", "Wrong pin");
             }
-            else if(teamInfo.get("user_type") == "G"){
-                // add as guest
-                saveUserTeamInfoEntity(teamInfo, "G");
-                responseApi.put("joined_status", "-1");
-                responseApi.put("joined_userType", "G");
+            responseApi.put("league_id", teamInfo.get("league_id"));
+            if (!responseApi.get("joined_status").equals("0")) {
+                responseApi.put("team_details", leagueService.getTeamDetails(teamInfoEntity));
             }
         }
-        responseApi.put("league_id", teamInfo.get("league_id"));
-        responseApi.put("team_details", leagueService.getTeamDetails(teamInfoEntity.get()));
         return responseApi;
     }
 }

@@ -77,10 +77,14 @@ public class LeagueService {
 
     /* To join league */
     public Map<String, Object> joinLeague(Map<String, Object> leagueInfo) {
+        saveLeagueMemberEntity(leagueInfo, "M");
+        return joinResponseApi(leagueInfo);
+    }
+
+    public Map<String, Object> joinResponseApi(Map<String, Object> leagueInfo) {
         Map<String, Object> teamDetails = new HashMap<>();
         Map<String, Object> teams = new HashMap<>();
 
-        saveLeagueMemberEntity(leagueInfo, "M");
         List<TeamInfoEntity> teamInfoEntities = teamInfoRepository.findByLeagueId((int) leagueInfo.get(LEAGUE_ID));
 
         for (TeamInfoEntity teamInfoEntity : teamInfoEntities) {
@@ -114,7 +118,6 @@ public class LeagueService {
         }
         teamDetails.put("maxTeamLimitReached", teamInfoEntities.size() == option.getTeamSize() ? true : false);
         return teamDetails;
-
     }
 
     //To save league logo entity

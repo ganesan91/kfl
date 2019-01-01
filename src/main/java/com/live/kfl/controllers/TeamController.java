@@ -22,8 +22,8 @@ public class TeamController {
   }
 
   // join team
-  @PostMapping("/joinTeamInLeague")
-  public Map<String, Object> joinTeamInLeague(@RequestBody Map<String, Object> teamInfo) {
-    return teamService.joinTeamInLeague(teamInfo);
+  @PostMapping("/joinTeam")
+  public Map<String, Object> joinTeam(@RequestBody Map<String, Object> teamInfo) {
+    return teamService.joinTeam(teamInfo);
   }
 }

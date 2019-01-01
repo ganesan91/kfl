@@ -5,8 +5,6 @@ Y
 )src/main/resources/application.properties,0/6/06f65155ec73600b9fc5c4dc2883d4bb84d8e284
 7
 pom.xml,4/4/442292b8a7efeabbe4cc176709b833b1792140ec
-e
-5src/main/java/com/live/kfl/entities/LeagueEntity.java,1/e/1e76affd3dd573362c9ffc941cdfc8e785c7c7d1
 i
 9src/main/java/com/live/kfl/entities/LeagueLogoEntity.java,1/a/1a08aa55893cc45b9fb989b17c27cf7ed24d3baf
 j
@@ -15,8 +13,6 @@ q
 Asrc/main/java/com/live/kfl/repositories/LeagueLogoRepository.java,b/d/bd2d7ca453aa5a9ba34f47a44a1e84e52e0fc322
 r
 Bsrc/main/java/com/live/kfl/repositories/LeagueLimitRepository.java,6/c/6c9f7653a7a26f04f3a487c467b21bce3766bec3
-u
-Esrc/main/java/com/live/kfl/repositories/LeagueEntitityRepository.java,c/a/ca03f92fb9cbb3fb0893f19f049ad78edbe8d227
 ^
 .src/main/java/com/live/kfl/KflApplication.java,e/0/e0371a36e8f076922dc6b0be2f44006d7e8f9ec9
 c
@@ -49,3 +45,18 @@ l
 <src/main/java/com/live/kfl/controllers/LeagueController.java,a/9/a9289640f8f6964c045235196b5557ba6016d6a5
 i
 9src/main/java/com/live/kfl/constants/LeagueConstants.java,9/3/93b3d07d65e40c8cbad65e22f454e179a0f85d4e
+T
+$.idea/checkstyleidea-libs/readme.txt,0/7/07b7bfcbe4a27e2783b05ea0caae034a6bc036ec
+T
+$.idea/codeStyles/codeStyleConfig.xml,d/d/dd7b3350c29c49497756c7f32c69a3bed18b1cba
+]
+-.idea/libraries/Maven__log4j_log4j_1_2_17.xml,2/d/2dfa7669c20c41273cb505d16f04d17467fb3330
+A
+src/main/main.iml,6/1/61b68408d9be329695c36f5e4e3ba9efeb3d663d
+A
+src/test/test.iml,d/7/d7a7839e847f2bbbecc3737724f1de3cb25cdb5c
+7
+kfl.iml,6/f/6f7953e500ff37e5eb203ada55677804ccd3e49c
+:
+
+.gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302

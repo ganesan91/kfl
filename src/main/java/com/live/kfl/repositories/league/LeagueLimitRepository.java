@@ -1,6 +1,6 @@
-package com.live.kfl.repositories;
+package com.live.kfl.repositories.league;
 
-import com.live.kfl.entities.LeagueLimitEntity;
+import com.live.kfl.entities.league.LeagueLimitEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.live.kfl.entities;
+package com.live.kfl.entities.league;
 
 import java.sql.Timestamp;
 import javax.persistence.Column;

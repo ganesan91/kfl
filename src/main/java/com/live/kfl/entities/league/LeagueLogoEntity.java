@@ -1,4 +1,4 @@
-package com.live.kfl.entities;
+package com.live.kfl.entities.league;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

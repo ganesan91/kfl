@@ -36,13 +36,13 @@ public class LeagueController {
     return leagueService.createLeague(leagueInfo);
   }
 
-  // Join league
+  // get league
   @GetMapping("/getLeague/{leagueCode}")
   public LeagueInfoEntity getLeague(@PathVariable String leagueCode) {
     return leagueService.getLeague(leagueCode);
   }
 
-  // Create New league
+  // join league
   @PostMapping("/joinLeague")
   public Map<String, Object> joinLeague(@RequestBody Map<String, Object> leagueInfo) {
     return leagueService.joinLeague(leagueInfo);

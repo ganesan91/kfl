@@ -15,11 +15,15 @@ public class TeamController {
   @Autowired
   TeamService teamService;
 
-  // Create New league
+  // Create New Team
   @PostMapping("/createTeam")
   public Map<String, Object> createTeam(@RequestBody Map<String, Object> teamInfo) {
-
-
     return teamService.createTeam(teamInfo);
+  }
+
+  // join team
+  @PostMapping("/joinTeamInLeague")
+  public Map<String, Object> joinTeamInLeague(@RequestBody Map<String, Object> teamInfo) {
+    return teamService.joinTeamInLeague(teamInfo);
   }
 }

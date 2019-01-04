@@ -23,6 +23,7 @@ import com.live.kfl.repositories.team.TeamInfoRepository;
 import com.live.kfl.repositories.team.TeamPreferenceRepository;
 import com.live.kfl.repositories.team.UserTeamInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import static com.live.kfl.constants.LeagueConstants.*;
@@ -64,9 +65,15 @@ public class LeagueService {
     public Map<String, Object> createLeague(Map<String, Object> leagueInfo) {
         leagueInfo = saveLeagueInfoEntity(leagueInfo);
         int leagueId = (int) leagueInfo.get(LEAGUE_ID);
-        saveLeagueLimitEntity(leagueInfo);
-        saveLeagueLogoEntity(leagueInfo);
-        saveLeagueMemberEntity(leagueInfo, "A");
+        try {
+
+            saveLeagueLimitEntity(leagueInfo);
+            saveLeagueLogoEntity(leagueInfo);
+            saveLeagueMemberEntity(leagueInfo, "A");
+        } catch (DataAccessException ex) {
+            System.out.println("Data Access Exception: " + ex.getLocalizedMessage());
+            return null;
+        }
         Map<String, Object> responseApi = new HashMap<>();
         responseApi.put("user_id", leagueInfo.get("user_id"));
         responseApi.put(LEAGUE_ID, leagueId);
@@ -77,7 +84,12 @@ public class LeagueService {
 
     /* To join league */
     public Map<String, Object> joinLeague(Map<String, Object> leagueInfo) {
-        saveLeagueMemberEntity(leagueInfo, "M");
+        try {
+            saveLeagueMemberEntity(leagueInfo, "M");
+        } catch (DataAccessException ex) {
+            System.out.println("Data Access Exception: " + ex.getLocalizedMessage());
+            return null;
+        }
         return joinResponseApi(leagueInfo);
     }
 
@@ -126,7 +138,7 @@ public class LeagueService {
     }
 
     //To save league logo entity
-    public void saveLeagueLogoEntity(Map<String, Object> leagueInfo) {
+    public void saveLeagueLogoEntity(Map<String, Object> leagueInfo) throws DataAccessException {
         LeagueLogoEntity leagueLogoEntity = new LeagueLogoEntity();
         leagueLogoEntity.setLeagueId(((int) leagueInfo.get(LEAGUE_ID)));
         leagueLogoEntity.setImageId(leagueInfo.get("logo_id").toString());
@@ -134,7 +146,7 @@ public class LeagueService {
     }
 
     //To save league limit entity
-    public void saveLeagueLimitEntity(Map<String, Object> leagueInfo) {
+    public void saveLeagueLimitEntity(Map<String, Object> leagueInfo) throws DataAccessException {
         LeagueLimitEntity leagueLimitEntity = new LeagueLimitEntity();
         leagueLimitEntity.setLeagueId(((int) leagueInfo.get(LEAGUE_ID)));
         leagueLimitEntity.setPlayerLimit((int) leagueInfo.get("players_limit"));
@@ -143,7 +155,7 @@ public class LeagueService {
     }
 
     //To save league member entity
-    public void saveLeagueMemberEntity(Map<String, Object> leagueInfo, String type) {
+    public void saveLeagueMemberEntity(Map<String, Object> leagueInfo, String type) throws DataAccessException {
         LeagueMemberEntity leagueMemberEntity = new LeagueMemberEntity();
         leagueMemberEntity.setLeagueId(((int) leagueInfo.get(LEAGUE_ID)));
         leagueMemberEntity.setUserId((int) leagueInfo.get("user_id"));
@@ -152,7 +164,7 @@ public class LeagueService {
     }
 
     //To save league info entity
-    public Map<String, Object> saveLeagueInfoEntity(Map<String, Object> leagueInfo) {
+    public Map<String, Object> saveLeagueInfoEntity(Map<String, Object> leagueInfo) throws DataAccessException {
         LeagueInfoEntity leagueInfoEntity = new LeagueInfoEntity();
         leagueInfoEntity.setLeagueName(leagueInfo.get(LEAGUE_NAME).toString());
         leagueInfoEntity.setLeagueCode(

@@ -7,6 +7,7 @@ import com.live.kfl.repositories.team.TeamInfoRepository;
 import com.live.kfl.repositories.team.TeamPreferenceRepository;
 import com.live.kfl.repositories.team.UserTeamInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -32,10 +33,15 @@ public class TeamService {
 
     /* To create team */
     public Map<String, Object> createTeam(Map<String, Object> teamInfo) {
-        teamInfo = saveTeamInfoEntity(teamInfo);
-        saveUserTeamInfoEntity(teamInfo, "A");
-        saveTeamPreference(teamInfo, "color");
-        saveTeamPreference(teamInfo, "logo_id");
+        try {
+            teamInfo = saveTeamInfoEntity(teamInfo);
+            saveUserTeamInfoEntity(teamInfo, "A");
+            saveTeamPreference(teamInfo, "color");
+            saveTeamPreference(teamInfo, "logo_id");
+        } catch (DataAccessException ex) {
+            System.out.println("Data Access Exception: " + ex.getLocalizedMessage());
+            return null;
+        }
 
         Map<String, Object> responseApi = new HashMap<>();
         responseApi.put("team_create_status", "Success");
@@ -46,7 +52,7 @@ public class TeamService {
     }
 
     //To save team info
-    public Map<String, Object> saveTeamInfoEntity(Map<String, Object> teamInfo) {
+    public Map<String, Object> saveTeamInfoEntity(Map<String, Object> teamInfo) throws DataAccessException {
         TeamInfoEntity teamInfoEntity = new TeamInfoEntity();
         teamInfoEntity.setLeagueId((int) teamInfo.get(LEAGUE_ID));
         teamInfoEntity.setTeamName(teamInfo.get("team_name").toString());
@@ -59,7 +65,7 @@ public class TeamService {
     }
 
     //To save to user team info
-    public void saveUserTeamInfoEntity(Map<String, Object> teamInfo, String type) {
+    public void saveUserTeamInfoEntity(Map<String, Object> teamInfo, String type) throws DataAccessException {
         UserTeamInfoEntity userTeamInfoEntity = new UserTeamInfoEntity();
         UserTeamInfoEmbedded userTeamInfoEmbedded = new UserTeamInfoEmbedded((int) teamInfo.get("user_id"), (int) teamInfo.get("team_id"));
         userTeamInfoEntity.setId(userTeamInfoEmbedded);
@@ -69,7 +75,7 @@ public class TeamService {
     }
 
     //To save to user team info
-    public void saveTeamPreference(Map<String, Object> teamInfo, String preferenceName) {
+    public void saveTeamPreference(Map<String, Object> teamInfo, String preferenceName) throws DataAccessException {
         TeamPreferenceEntity teamPreferenceEntity = new TeamPreferenceEntity();
         TeamPreferenceEmbedded teamPreferenceEmbedded = new TeamPreferenceEmbedded((int) teamInfo.get("team_id"), preferenceName);
         teamPreferenceEntity.setId(teamPreferenceEmbedded);
@@ -81,43 +87,48 @@ public class TeamService {
     public Map<String, Object> joinTeam(Map<String, Object> teamInfo) {
         Map<String, Object> responseApi = new HashMap<>();
         Optional<TeamInfoEntity> teamInfoEntityOptional = teamInfoRepository.findById((int) teamInfo.get("team_id"));
-        if (teamInfoEntityOptional.isPresent()) {
-            TeamInfoEntity teamInfoEntity = teamInfoEntityOptional.get();
-            if (teamInfoEntity.getPin() == (int) teamInfo.get("pin")) {
-                if (teamInfo.get("user_type").equals("M")) {
-                    Optional<LeagueLimitEntity> leagueLimitEntityOptional = leagueLimitRepository.findById((int) teamInfo.get("league_id"));
-                    if (leagueLimitEntityOptional.isPresent()) {
-                        LeagueLimitEntity leagueLimitEntity = leagueLimitEntityOptional.get();
-                        if (leagueLimitEntity.getPlayerLimit() > (int) leagueService.getTeamDetails(teamInfoEntity).get("playerCount")) {
-                            //add as member
-                            saveUserTeamInfoEntity(teamInfo, "M");
-                            responseApi.put("joined_status", "1");
-                            responseApi.put("joined_userType", "M");
-                        } else {
-                            //add as guest
-                            saveUserTeamInfoEntity(teamInfo, "G");
-                            responseApi.put("joined_status", "-1");
-                            responseApi.put("joined_userType", "G");
-                            responseApi.put("message", "Max limit for Users reached, user joined as Guest");
+        try {
+            if (teamInfoEntityOptional.isPresent()) {
+                TeamInfoEntity teamInfoEntity = teamInfoEntityOptional.get();
+                if (teamInfoEntity.getPin() == (int) teamInfo.get("pin")) {
+                    if (teamInfo.get("user_type").equals("M")) {
+                        Optional<LeagueLimitEntity> leagueLimitEntityOptional = leagueLimitRepository.findById((int) teamInfo.get("league_id"));
+                        if (leagueLimitEntityOptional.isPresent()) {
+                            LeagueLimitEntity leagueLimitEntity = leagueLimitEntityOptional.get();
+                            if (leagueLimitEntity.getPlayerLimit() > (int) leagueService.getTeamDetails(teamInfoEntity).get("playerCount")) {
+                                //add as member
+                                saveUserTeamInfoEntity(teamInfo, "M");
+                                responseApi.put("joined_status", "1");
+                                responseApi.put("joined_userType", "M");
+                            } else {
+                                //add as guest
+                                saveUserTeamInfoEntity(teamInfo, "G");
+                                responseApi.put("joined_status", "-1");
+                                responseApi.put("joined_userType", "G");
+                                responseApi.put("message", "Max limit for Users reached, user joined as Guest");
+                            }
                         }
+                    } else if (teamInfo.get("user_type").equals("G")) {
+                        // add as guest
+                        saveUserTeamInfoEntity(teamInfo, "G");
+                        responseApi.put("joined_status", "1");
+                        responseApi.put("joined_userType", "G");
+                    } else {
+                        responseApi.put("joined_status", "0");
+                        responseApi.put("message", "Invalid User type");
                     }
-                } else if (teamInfo.get("user_type").equals("G")) {
-                    // add as guest
-                    saveUserTeamInfoEntity(teamInfo, "G");
-                    responseApi.put("joined_status", "1");
-                    responseApi.put("joined_userType", "G");
                 } else {
                     responseApi.put("joined_status", "0");
-                    responseApi.put("message", "Invalid User type");
+                    responseApi.put("message", "Wrong pin");
                 }
-            } else {
-                responseApi.put("joined_status", "0");
-                responseApi.put("message", "Wrong pin");
+                responseApi.put("league_id", teamInfo.get("league_id"));
+                if (!responseApi.get("joined_status").equals("0")) {
+                    responseApi.put("team_details", leagueService.getTeamDetails(teamInfoEntity));
+                }
             }
-            responseApi.put("league_id", teamInfo.get("league_id"));
-            if (!responseApi.get("joined_status").equals("0")) {
-                responseApi.put("team_details", leagueService.getTeamDetails(teamInfoEntity));
-            }
+        } catch (DataAccessException ex) {
+            System.out.println("Data Access Exception: " + ex.getLocalizedMessage());
+            return null;
         }
         return responseApi;
     }
